@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalesCode AI - Recapture Detection Demo</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: rgba(20, 26, 44, 0.6);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.4);
+            --warning: #f59e0b;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--panel-border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .logo-text {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text span {
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge-cv {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .intro-section {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .intro-section h1 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .intro-section p {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        /* Camera Viewport */
+        .viewport-container {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .viewport-video, .viewport-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .viewport-canvas {
+            display: none;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid transparent;
+            pointer-events: none;
+            box-shadow: inset 0 0 40px rgba(59, 130, 246, 0.1);
+        }
+
+        .scanner-reticle {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+        }
+
+        .scanner-reticle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border-top: 3px solid var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .scanner-reticle::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            border-bottom: 3px solid var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        /* Scan Line Animation */
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            box-shadow: 0 0 8px var(--primary);
+            top: 0;
+            animation: scanning 3s linear infinite;
+            display: none;
+        }
+
+        .scanning .scan-line {
+            display: block;
+        }
+
+        .scanning .scanner-overlay {
+            box-shadow: inset 0 0 40px rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        @keyframes scanning {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: transparent;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+
+        .btn-success {
+            background: var(--success);
+            border-color: transparent;
+            box-shadow: 0 4px 14px var(--success-glow);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            box-shadow: 0 6px 20px var(--success-glow);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* File Upload Zone */
+        .upload-zone {
+            width: 100%;
+            aspect-ratio: 4/3;
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            transition: color 0.2s ease;
+        }
+
+        .upload-zone:hover .upload-icon {
+            color: var(--primary);
+        }
+
+        .upload-text h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-text p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        /* Dashboard & Results */
+        .results-empty {
+            height: 100%;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-align: center;
+            border: 1px dashed rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .results-empty i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .result-card {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result-header.status-real {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .result-header.status-screen {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .result-status-icon {
+            font-size: 2.5rem;
+        }
+
+        .result-status-title h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .result-status-title p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            color: var(--text-main);
+        }
+
+        /* Meter Gauge */
+        .gauge-section {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .gauge-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .gauge-bar-outer {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gauge-bar-inner {
+            height: 100%;
+            width: 0%;
+            border-radius: 6px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(90deg, var(--success), var(--warning), var(--danger));
+            background-size: 200% 100%;
+        }
+
+        .gauge-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Explanation pipeline */
+        .pipeline-card {
+            background: rgba(59, 130, 246, 0.03);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .pipeline-title {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .pipeline-steps {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .pipeline-step-bullet {
+            color: var(--primary);
+            font-weight: bold;
+            margin-top: 1px;
+        }
+
+        /* Info boxes */
+        .info-footer {
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .info-footer {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #93c5fd;
+        }
+
+        .info-card p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Continuous prediction switch styling */
+        .continuous-control {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Toggle switch CSS */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 20px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.1);
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-dot"></div>
+            <div class="logo-text">SalesCode <span>AI</span></div>
+            <div class="badge-cv">CV Classifier</div>
+        </div>
+        <div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Recapture Detection Demo</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="intro-section">
+            <h1>Spot the Fake Photo</h1>
+            <p>A lightweight, classical Computer Vision baseline using FFT texture analysis, LBP descriptors, sharpness statistics, and noise residuals to detect screen recapture fraud.</p>
+        </div>
+
+        <div class="workspace-grid">
+            
+            <!-- Left Panel: Input -->
+            <div class="glass-panel" style="display: flex; flex-direction: column;">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-camera" style="color: var(--primary);"></i> Image Source
+                    </div>
+                    <div class="tabs">
+                        <button class="tab-btn active" id="tab-camera" onclick="switchTab('camera')">
+                            <i class="fa-solid fa-video"></i> Camera
+                        </button>
+                        <button class="tab-btn" id="tab-upload" onclick="switchTab('upload')">
+                            <i class="fa-solid fa-upload"></i> Upload
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Camera Container -->
+                <div id="camera-container">
+                    <div class="viewport-container" id="video-wrapper">
+                        <video id="video" class="viewport-video" autoplay playsinline muted></video>
+                        <div class="scanner-overlay">
+                            <div class="scanner-reticle"></div>
+                            <div class="scan-line"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <div class="continuous-control">
+                            <span>Live Scan</span>
+                            <label class="switch">
+                                <input type="checkbox" id="continuous-scan" onchange="toggleContinuousScan()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <button class="btn btn-primary" id="btn-capture" onclick="captureAndPredict()">
+                            <i class="fa-solid fa-crosshairs"></i> Predict Frame
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Container -->
+                <div id="upload-container" style="display: none;">
+                    <div class="upload-zone" id="drop-zone" onclick="triggerFileInput()">
+                        <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                        <div class="upload-text">
+                            <h3>Drag & Drop Image</h3>
+                            <p>or click to browse local files (JPG, PNG)</p>
+                        </div>
+                        <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
+                    </div>
+
+                    <div class="viewport-container" id="image-wrapper" style="display: none; margin-top: 0px;">
+                        <img id="preview-image" class="viewport-image" src="" alt="Preview">
+                        <div class="scanner-overlay">
+                            <div class="scanner-reticle"></div>
+                            <div class="scan-line"></div>
+                        </div>
+                    </div>
+
+                    <div class="controls" id="upload-controls" style="display: none;">
+                        <button class="btn" onclick="resetUpload()">
+                            <i class="fa-solid fa-rotate-left"></i> Reset
+                        </button>
+                        <button class="btn btn-primary" id="btn-predict-upload" onclick="predictUploadedImage()">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Predict Upload
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden Canvas for frame extraction -->
+                <canvas id="canvas" class="viewport-canvas"></canvas>
+            </div>
+
+            <!-- Right Panel: Results Dashboard -->
+            <div class="glass-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fa-solid fa-chart-simple" style="color: var(--primary);"></i> Inference Dashboard
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="results-empty" id="results-empty">
+                        <i class="fa-solid fa-radar"></i>
+                        <h3>Awaiting Input</h3>
+                        <p>Stream live camera feed or upload a photo to perform recapture classification.</p>
+                    </div>
+
+                    <!-- Loaded Result Dashboard -->
+                    <div class="result-card" id="result-card">
+                        
+                        <!-- Status Header -->
+                        <div class="result-header" id="result-header">
+                            <div class="result-status-icon" id="result-status-icon">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div class="result-status-title">
+                                <h2 id="result-label">Real Photo</h2>
+                                <p id="result-desc">The image appears to be an authentic capture.</p>
+                            </div>
+                        </div>
+
+                        <!-- Score Meter -->
+                        <div class="gauge-section">
+                            <div class="gauge-label-row">
+                                <span>Recapture Probability</span>
+                                <span id="gauge-score-text" style="font-family: var(--font-mono); font-weight: 700;">0.00</span>
+                            </div>
+                            <div class="gauge-bar-outer">
+                                <div class="gauge-bar-inner" id="gauge-bar"></div>
+                            </div>
+                            <div class="gauge-labels">
+                                <span>0.0 (Authentic Real)</span>
+                                <span>0.5 (Threshold)</span>
+                                <span>1.0 (Recaptured Screen)</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Latency</div>
+                                <div class="stat-value" id="stat-latency">-- ms</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Confidence</div>
+                                <div class="stat-value" id="stat-confidence">--%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CV Features Explanation -->
+                <div class="pipeline-card" style="margin-top: 1.5rem;">
+                    <div class="pipeline-title">
+                        <i class="fa-solid fa-microchip"></i> Handcrafted Classical Features
+                    </div>
+                    <ul class="pipeline-steps">
+                        <li class="pipeline-step">
+                            <span class="pipeline-step-bullet">1.</span>
+                            <span><strong>FFT Spectrum:</strong> Analyzes high-frequency spikes and peaks typical of screen pixels and Moiré patterns.</span>
+                        </li>
+                        <li class="pipeline-step">
+                            <span class="pipeline-step-bullet">2.</span>
+                            <span><strong>LBP Histograms:</strong> Captures local micro-texture variations (Local Binary Patterns).</span>
+                        </li>
+                        <li class="pipeline-step">
+                            <span class="pipeline-step-bullet">3.</span>
+                            <span><strong>Sharpness (Laplacian):</strong> Measures defocusing, lens blur, and edge attenuation differences.</span>
+                        </li>
+                        <li class="pipeline-step">
+                            <span class="pipeline-step-bullet">4.</span>
+                            <span><strong>Noise Residuals:</strong> Estimates sensor pattern noise which gets lost/duplicated during recapture.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Latency and Cost Reports -->
+        <div class="info-footer">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <i class="fa-solid fa-gauge-high"></i> Latency Target
+                </div>
+                <p><strong>Latency:</strong> ~650 ms on local CPU.<br>Optimized via center-cropping to (256, 256) and using highly optimized scikit-learn standard linear classifiers.</p>
+            </div>
+            <div class="info-card">
+                <div class="info-card-header">
+                    <i class="fa-solid fa-dollar-sign"></i> Cost at Scale
+                </div>
+                <p><strong>On-Device:</strong> $0.00 / free (once compiled to webassembly or native mobile library).<br><strong>Cloud API:</strong> ~$0.05 per 1,000 requests using basic AWS Lambda/serverless CPU hosting.</p>
+            </div>
+            <div class="info-card">
+                <div class="info-card-header">
+                    <i class="fa-solid fa-bullseye"></i> Goal Accuracy
+                </div>
+                <p><strong>Target:</strong> 95%+ accuracy. Current baseline: 68.3%.<br>Can be significantly boosted by incorporating advanced frequency/Moiré filtering or lightweight deep networks (MobileNet/SqueezeNet).</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // DOM Elements
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const previewImage = document.getElementById('preview-image');
+        const resultsEmpty = document.getElementById('results-empty');
+        const resultCard = document.getElementById('result-card');
+        const resultHeader = document.getElementById('result-header');
+        const resultStatusIcon = document.getElementById('result-status-icon');
+        const resultLabel = document.getElementById('result-label');
+        const resultDesc = document.getElementById('result-desc');
+        const gaugeScoreText = document.getElementById('gauge-score-text');
+        const gaugeBar = document.getElementById('gauge-bar');
+        const statLatency = document.getElementById('stat-latency');
+        const statConfidence = document.getElementById('stat-confidence');
+        
+        let activeTab = 'camera';
+        let stream = null;
+        let continuousInterval = null;
+        let isPredicting = false;
+
+        // Initialize Camera
+        async function initCamera() {
+            try {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment', width: 640, height: 480 },
+                    audio: false 
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Camera access error:", err);
+                alert("Camera access denied or unavailable. Please use the 'Upload' tab instead.");
+                switchTab('upload');
+            }
+        }
+
+        // Clean up Camera
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            toggleContinuousScan(false);
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            activeTab = tab;
+            document.getElementById('tab-camera').classList.toggle('active', tab === 'camera');
+            document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
+            
+            document.getElementById('camera-container').style.display = tab === 'camera' ? 'block' : 'none';
+            document.getElementById('upload-container').style.display = tab === 'upload' ? 'block' : 'none';
+            
+            if (tab === 'camera') {
+                initCamera();
+            } else {
+                stopCamera();
+            }
+        }
+
+        // Trigger file input click
+        function triggerFileInput() {
+            document.getElementById('file-input').click();
+        }
+
+        // Handle File Drag and Drop / Selection
+        function handleFileSelect(e) {
+            const file = e.target.files[0] || e.dataTransfer.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                previewImage.src = event.target.result;
+                document.getElementById('drop-zone').style.display = 'none';
+                document.getElementById('image-wrapper').style.display = 'block';
+                document.getElementById('upload-controls').style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetUpload() {
+            document.getElementById('file-input').value = '';
+            document.getElementById('drop-zone').style.display = 'flex';
+            document.getElementById('image-wrapper').style.display = 'none';
+            document.getElementById('upload-controls').style.display = 'none';
+            previewImage.src = '';
+            
+            // Clear dashboard
+            resultsEmpty.style.display = 'flex';
+            resultCard.style.display = 'none';
+        }
+
+        // Drag events for Dropzone
+        const dropZone = document.getElementById('drop-zone');
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--primary)';
+                dropZone.style.background = 'rgba(59, 130, 246, 0.08)';
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                dropZone.style.background = 'rgba(0, 0, 0, 0.1)';
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', handleFileSelect, false);
+
+        // Core Predict Actions
+        async function captureAndPredict() {
+            if (isPredicting) return;
+            
+            // Visual indicator
+            const wrapper = document.getElementById('video-wrapper');
+            wrapper.classList.add('scanning');
+            isPredicting = true;
+            document.getElementById('btn-capture').disabled = true;
+
+            try {
+                // Draw frame to canvas
+                const width = video.videoWidth || 640;
+                const height = video.videoHeight || 480;
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, width, height);
+                
+                // Get base64 image data
+                const base64Data = canvas.toDataURL('image/jpeg', 0.85);
+
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image_b64: base64Data })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    displayResult(data);
+                } else {
+                    console.error("Prediction failed:", data.error);
+                }
+            } catch (err) {
+                console.error("Error predicting:", err);
+            } finally {
+                wrapper.classList.remove('scanning');
+                isPredicting = false;
+                document.getElementById('btn-capture').disabled = false;
+            }
+        }
+
+        async function predictUploadedImage() {
+            if (isPredicting) return;
+            
+            const fileInput = document.getElementById('file-input');
+            if (fileInput.files.length === 0) return;
+
+            const wrapper = document.getElementById('image-wrapper');
+            wrapper.classList.add('scanning');
+            isPredicting = true;
+            document.getElementById('btn-predict-upload').disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('image', fileInput.files[0]);
+
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    displayResult(data);
+                } else {
+                    alert("Prediction failed: " + data.error);
+                }
+            } catch (err) {
+                console.error("Error predicting:", err);
+            } finally {
+                wrapper.classList.remove('scanning');
+                isPredicting = false;
+                document.getElementById('btn-predict-upload').disabled = false;
+            }
+        }
+
+        // Toggle Continuous scanning
+        function toggleContinuousScan(forceState = null) {
+            const toggle = document.getElementById('continuous-scan');
+            if (forceState !== null) {
+                toggle.checked = forceState;
+            }
+
+            if (toggle.checked) {
+                document.getElementById('btn-capture').style.display = 'none';
+                continuousInterval = setInterval(async () => {
+                    if (!isPredicting) {
+                        await captureAndPredict();
+                    }
+                }, 1000); // scan every 1 second
+            } else {
+                document.getElementById('btn-capture').style.display = 'inline-flex';
+                if (continuousInterval) {
+                    clearInterval(continuousInterval);
+                    continuousInterval = null;
+                }
+            }
+        }
+
+        // Display results to Dashboard
+        function displayResult(data) {
+            resultsEmpty.style.display = 'none';
+            resultCard.style.display = 'flex';
+            
+            // Status Header
+            resultHeader.className = 'result-header ' + (data.is_screen ? 'status-screen' : 'status-real');
+            
+            if (data.is_screen) {
+                resultStatusIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                resultLabel.innerText = 'Recapture Detected';
+                resultDesc.innerText = 'This image displays characteristics of a screen recapture.';
+            } else {
+                resultStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                resultLabel.innerText = 'Authentic Photo';
+                resultDesc.innerText = 'This image displays characteristics of a genuine real-world photo.';
+            }
+
+            // Gauge Score
+            gaugeScoreText.innerText = data.score.toFixed(4);
+            gaugeBar.style.width = (data.score * 100) + '%';
+
+            // Stats
+            statLatency.innerText = Math.round(data.latency_ms) + ' ms';
+            statConfidence.innerText = Math.round(data.confidence * 100) + '%';
+        }
+
+        // Initialize Camera on page load
+        window.addEventListener('load', () => {
+            initCamera();
+        });
+    </script>
+</body>
+</html>

@@ -10,9 +10,11 @@ __pycache__/
 .mypy_cache/
 
 # Generated model/artifacts and analysis outputs
-artifacts/
+# artifacts/
 analysis/
 feature_importance.csv
+temp_uploads/
+
 
 # Local dataset (not for Git)
 dataset/
