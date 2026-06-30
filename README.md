@@ -8,7 +8,7 @@ The objective is to provide a lightweight, explainable, CPU-friendly pipeline wi
 
 ---
 
-## 🚀 Interactive Live Web UI
+## Live Web UI
 
 An impressive, glassmorphism-themed dark mode Web UI has been implemented to test the classifier in real-time. It supports both **live camera scans** and **local file uploads**.
 
@@ -28,7 +28,7 @@ An impressive, glassmorphism-themed dark mode Web UI has been implemented to tes
 
 ---
 
-## 📊 Required Numbers Report
+## Required Numbers Report
 
 | Metric | On-Device (Mobile CPU / WASM) | Cloud Server (AWS Lambda CPU) |
 | :--- | :--- | :--- |
@@ -49,7 +49,7 @@ An impressive, glassmorphism-themed dark mode Web UI has been implemented to tes
 
 ---
 
-## 🧠 Methodology & Performance Note
+## Methodology & Performance Note
 
 ### 1. Classical CV Baseline (Accuracy: ~68.32%)
 - Preprocessing center-crops images to $256 \times 256$ pixels.
@@ -65,7 +65,7 @@ An impressive, glassmorphism-themed dark mode Web UI has been implemented to tes
 
 ---
 
-## 🛠️ Folder Structure
+## Folder Structure
 
 - `app.py` - Flask server application hosting API endpoints and web template.
 - `templates/index.html` - Premium glassmorphic HTML UI with camera integration.
