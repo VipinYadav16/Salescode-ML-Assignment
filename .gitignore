@@ -1,0 +1,22 @@
+# Python cache and bytecode
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+
+# Test and type-check caches
+.pytest_cache/
+.mypy_cache/
+
+# Generated model/artifacts and analysis outputs
+artifacts/
+analysis/
+feature_importance.csv
+
+# Local dataset (not for Git)
+dataset/
+
+# OS metadata
+.DS_Store
+Thumbs.db
